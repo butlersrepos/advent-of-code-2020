@@ -12,13 +12,17 @@ fn main() {
                 return false;
             } else {
                 let captures = line_regex.captures(x).unwrap();
-                let min = captures.get(1).unwrap().as_str().parse::<u32>().unwrap();
-                let max = captures.get(2).unwrap().as_str().parse::<u32>().unwrap();
+                let position1 = captures.get(1).unwrap().as_str().parse::<usize>().unwrap();
+                let position2 = captures.get(2).unwrap().as_str().parse::<usize>().unwrap();
                 let letter = captures.get(3).unwrap().as_str();
-                let pass = captures.get(4).unwrap().as_str().trim();
+                let password = String::from(captures.get(4).unwrap().as_str().trim());
 
-                let occurences = pass.matches(letter).collect::<Vec<&str>>().len() as u32;
-                if occurences < min || occurences > max {
+                let (_, char1) = password.char_indices().nth(position1 - 1).unwrap();
+                let (_, char2) = password.char_indices().nth(position2 - 1).unwrap();
+                if char1.to_string() == letter && char2.to_string() == letter {
+                    return false;
+                }
+                if char1.to_string() != letter && char2.to_string() != letter {
                     return false;
                 }
                 return true;
