@@ -4,7 +4,7 @@ pub fn read_lines<S: Into<String>>(filename: S) -> Vec<String> {
     return fs::read_to_string(filename.into())
         .expect("Something went wrong reading the file!")
         .split("\n")
-        .map(|x| String::from(x))
+        .map(|x| String::from(x.trim()))
         .collect();
 }
 
