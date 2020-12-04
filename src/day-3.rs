@@ -1,13 +1,16 @@
 use advent_of_code::read_lines;
-
+use std::env;
 const TREE: &str = "#";
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+    let path_args = &args[1..];
     let lines = read_lines("day-3-input.txt");
 
-    let paths = vec![(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];
+    let paths: Vec<(usize, usize)> = path_args.iter().map(convert_velocities).collect();
 
     let mut results: Vec<usize> = vec![];
+
     for path in paths {
         let trees_hit = solve_for(&lines, path.0, path.1);
         println!("Reached the end and only hit {} trees", trees_hit);
@@ -18,6 +21,15 @@ fn main() {
         "Multiplied total: {}",
         results.iter().fold(1, |acc, x| acc * x)
     );
+}
+
+fn convert_velocities(arg: &String) -> (usize, usize) {
+    let new_coord = arg
+        .split(",")
+        .map(|x| x.parse::<usize>().unwrap())
+        .collect::<Vec<usize>>();
+
+    (*new_coord.get(0).unwrap(), *new_coord.get(1).unwrap())
 }
 
 fn solve_for(lines: &Vec<String>, move_x: usize, move_y: usize) -> usize {
