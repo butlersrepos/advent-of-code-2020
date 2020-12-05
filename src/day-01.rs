@@ -2,7 +2,7 @@ mod lib;
 use advent_of_code::read_lines_as_nums;
 
 fn main() {
-    let filename: String = String::from("day-1-input.txt");
+    let filename: String = String::from("day-01-input.txt");
 
     let nums: Vec<u32> = read_lines_as_nums(filename);
 

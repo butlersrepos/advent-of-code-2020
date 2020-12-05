@@ -5,7 +5,7 @@ const TREE: &str = "#";
 fn main() {
     let args: Vec<String> = env::args().collect();
     let path_args = &args[1..];
-    let lines = read_lines("day-3-input.txt");
+    let lines = read_lines("day-03-input.txt");
 
     let paths: Vec<(usize, usize)> = path_args.iter().map(convert_velocities).collect();
 

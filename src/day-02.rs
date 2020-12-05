@@ -3,7 +3,7 @@ use regex::Regex;
 
 fn main() {
     let line_regex: Regex = Regex::new(r"(\d+)-(\d+) (\w): (.+)").unwrap();
-    let lines = read_lines("day-2-input.txt");
+    let lines = read_lines("day-02-input.txt");
     let results: Vec<bool> = lines
         .iter()
         .map(|x| {
