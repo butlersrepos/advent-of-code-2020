@@ -31,28 +31,22 @@ fn main() {
         "hgt",
         Box::new(|hgt: &str| {
             let reg = regex::Regex::new(r"(\d+)(cm|in)").unwrap();
-            if let Some(captures) = reg.captures(hgt) {
-                if let Some(value) = captures.get(1) {
-                    if let Some(units) = captures.get(2) {
-                        match units.as_str() {
-                            "in" => match value.as_str().parse::<i32>() {
-                                Ok(x) => x >= 59 && x <= 76,
-                                Err(_) => false,
-                            },
-                            "cm" => match value.as_str().parse::<i32>() {
-                                Ok(x) => x >= 150 && x <= 193,
-                                Err(_) => false,
-                            },
-                            _ => false,
-                        }
-                    } else {
-                        false
-                    }
-                } else {
-                    false
-                }
-            } else {
-                false
+            let captures = match reg.captures(hgt) {
+                Some(c) => c,
+                None => return false,
+            };
+            let value = match captures.get(1) {
+                Some(v) => v.as_str(),
+                None => return false,
+            };
+            let units = match captures.get(2) {
+                Some(u) => u.as_str(),
+                None => return false,
+            };
+            match (units, value.parse::<i32>()) {
+                ("in", Ok(x)) => x >= 59 && x <= 76,
+                ("cm", Ok(x)) => x >= 150 && x <= 193,
+                (_, _) => false,
             }
         }),
     );
