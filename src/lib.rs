@@ -1,4 +1,6 @@
 use std::fs;
+// re-exports all fns for importing throughout the bins
+pub mod validators;
 
 pub fn read_lines<S: Into<String>>(filename: S) -> Vec<String> {
     return fs::read_to_string(filename.into())

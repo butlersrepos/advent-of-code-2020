@@ -1,4 +1,3 @@
-mod lib;
 use advent_of_code::read_lines_as_nums;
 
 fn main() {
