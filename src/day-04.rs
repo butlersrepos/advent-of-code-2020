@@ -1,9 +1,65 @@
 use regex::Regex;
-use std::fs;
-
-const REQUIRED_FIELDS: [&'static str; 7] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
+use std::{collections::HashMap, fs};
 
 fn main() {
+    type ValidatorFn = Box<dyn Fn(&str) -> bool>;
+    // Validation functions for each field we care about
+    // Also: an entry's presence denotes "REQUIRED"
+    let mut validations_map: HashMap<&str, ValidatorFn> = HashMap::new();
+    validations_map.insert(
+        "byr",
+        Box::new(|byr: &str| {
+            let value = byr.parse::<i32>().unwrap();
+            value >= 1920 && value <= 2002
+        }),
+    );
+    validations_map.insert(
+        "iyr",
+        Box::new(|iyr: &str| {
+            let value = iyr.parse::<i32>().unwrap();
+            value >= 2010 && value <= 2020
+        }),
+    );
+    validations_map.insert(
+        "eyr",
+        Box::new(|eyr: &str| {
+            let value = eyr.parse::<i32>().unwrap();
+            value >= 2020 && value <= 2030
+        }),
+    );
+    validations_map.insert(
+        "hgt",
+        Box::new(|hgt: &str| {
+            let reg = regex::Regex::new(r"(\d+)(cm|in)").unwrap();
+            if let Some(captures) = reg.captures(hgt) {
+                if let Some(value) = captures.get(1) {
+                    if let Some(units) = captures.get(2) {
+                        match units.as_str() {
+                            "in" => match value.as_str().parse::<i32>() {
+                                Ok(x) => x >= 59 && x <= 76,
+                                Err(_) => false,
+                            },
+                            "cm" => match value.as_str().parse::<i32>() {
+                                Ok(x) => x >= 150 && x <= 193,
+                                Err(_) => false,
+                            },
+                            _ => false,
+                        }
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                }
+            } else {
+                false
+            }
+        }),
+    );
+    validations_map.insert("hcl", Box::new(|hcl: &str| true));
+    validations_map.insert("ecl", Box::new(|ecl: &str| true));
+    validations_map.insert("pid", Box::new(|pid: &str| true));
+
     // Separate passport attempts
     let submission_regex: Regex = Regex::new(r"(?m)^\r$").unwrap();
     // Separate passport pieces
@@ -16,14 +72,6 @@ fn main() {
         .split(contents.as_str())
         .map(|x| x.trim().to_string())
         .collect();
-    let total = raw_submissions.len();
-
-    for submission in raw_submissions.iter().by_ref() {
-        println!("'{}'", submission);
-        println!("------------");
-    }
-
-    println!("Total passport attempts: {}", total);
 
     let submissions = raw_submissions.iter().map(|s| {
         let cleaned = s.replace("\n", "").to_string();
@@ -37,22 +85,32 @@ fn main() {
 
     // Go over every submission
     'submissions: for submission in submissions {
-        // Get the list of fields this submission has, (ignore the values I guess)
-        let field_keys: Vec<String> = submission
-            .iter()
-            .map(|x| x.split(":").map(|s| s.to_string()).collect::<Vec<String>>())
-            .map(|x| x.get(0).unwrap().clone())
-            .collect();
-
-        // Verify that we have all required fields
-        for required_field in REQUIRED_FIELDS.iter() {
-            if !field_keys.contains(&required_field.to_string()) {
+        for key in validations_map.keys() {
+            if let Some(field) = submission.iter().find(|x| x.starts_with(key)) {
+                let value = field.split(":").nth(1).unwrap();
+                let validator = validations_map.get(key).unwrap();
+                if !validator(value) {
+                    println!(
+                        "❌ Submission had invalid {}\t\t{}",
+                        key,
+                        submission.join(" ")
+                    );
+                    continue 'submissions;
+                }
+            } else {
+                println!(
+                    "❌ Submission lacked field {}\t\t{}",
+                    key,
+                    submission.join(" ")
+                );
+                // Ensures that we have all required fields
                 continue 'submissions;
             }
         }
-        // Only count it if we got here, by checking every REQUIRED_FIELDS item
+        println!("✅ Submission looks good!\t\t{}", submission.join(" "));
+        // Only count it if we got here, by checking every item in validations_map
         valid_submissions = valid_submissions + 1;
     }
-    
+
     println!("Total valid submissions: {}", valid_submissions);
 }
