@@ -19,22 +19,36 @@ fn convert_to_binary_num(s: &str, low_marker: &char) -> isize {
 
 fn main() {
     let lines = read_lines("day-05-input.txt");
-    let mut highest_seat_id = 0;
 
-    for entry in lines {
-        let row_code = entry.get(0..7).unwrap();
-        let seat_code = entry.get(7..).unwrap();
+    let mut seat_ids = lines
+        .into_iter()
+        .map(|x| {
+            let row_code = x.get(0..7).unwrap();
+            let seat_code = x.get(7..).unwrap();
 
-        let row = convert_to_binary_num(row_code, &LOWER_ROW);
-        let seat = convert_to_binary_num(seat_code, &LOWER_SEAT);
-        let seat_id = row * 8 + seat;
+            let row = convert_to_binary_num(row_code, &LOWER_ROW);
+            let seat = convert_to_binary_num(seat_code, &LOWER_SEAT);
+            let seat_id = row * 8 + seat;
 
-        if seat_id > highest_seat_id {
-            highest_seat_id = seat_id;
+            seat_id
+        })
+        .collect::<Vec<isize>>();
+
+    seat_ids.sort();
+
+    let mut prev_id = -1;
+    for id in seat_ids {
+        let is_first_item = prev_id == -1;
+        let is_first_row = id <= 15;
+        let is_the_next_seat = prev_id + 1 == id;
+        println!("Checking seat {}...", id);
+        // Get an initial previous and really begin, also ignore first row
+        if is_first_item || is_first_row || is_the_next_seat {
+            prev_id = id;
+            continue;
+        } else {
+            println!("Your seat id is: {}", id);
+            break;
         }
-
-        println!("Row number: {}, seat: {}, seat id: {}", row, seat, seat_id);
     }
-
-    println!("Highest seat ID: {}", highest_seat_id);
 }
