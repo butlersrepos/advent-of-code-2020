@@ -37,6 +37,7 @@ fn main() {
     seat_ids.sort();
 
     let mut prev_id = -1;
+
     for id in seat_ids {
         let is_first_item = prev_id == -1;
         let is_first_row = id <= 15;
@@ -47,7 +48,7 @@ fn main() {
             prev_id = id;
             continue;
         } else {
-            println!("Your seat id is: {}", id);
+            println!("Your seat id is: {}", id - 1);
             break;
         }
     }
