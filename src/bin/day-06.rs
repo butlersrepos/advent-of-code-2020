@@ -1,22 +1,32 @@
-use advent_of_code::read_lines;
+use std::collections::HashSet;
+use std::fs;
 
 fn main() {
-    let lines = read_lines("day-06-input.txt");
+    let contents = fs::read_to_string("day-06-input.txt").unwrap();
 
-    let groups = lines.split(|x| x == "").collect::<Vec<_>>();
+    let groups = contents
+        .split("\r\n\r\n")
+        .map(|x| x.to_string())
+        .collect::<Vec<String>>();
 
     let values = groups
         .iter()
         .map(|group| {
-            let mut single_list = group.join("").chars().collect::<Vec<char>>();
-            single_list.sort();
-            single_list.dedup();
-            println!(
-                "List processed from {} to {}",
-                group.join(","),
-                single_list.clone().into_iter().collect::<String>()
-            );
-            single_list.len()
+            let members = group
+                .split("\r\n")
+                .map(|x| x.to_string())
+                .collect::<Vec<String>>();
+
+            let remaining = members
+                .iter()
+                .fold(members.get(0).unwrap().clone(), |acc, curr| {
+                    let set1 = acc.chars().collect::<HashSet<_>>();
+                    let set2 = curr.chars().collect::<HashSet<_>>();
+                    let survivors = set1.intersection(&set2).collect::<HashSet<_>>();
+                    // return them in String form for the next comparison
+                    survivors.iter().map(|x| x.to_string()).collect::<String>()
+                });
+            remaining.len()
         })
         .collect::<Vec<usize>>();
 
