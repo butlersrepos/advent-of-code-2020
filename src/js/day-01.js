@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 function crunchNums1(nums) {
   for (num1 of nums) {
     for (num2 of nums) {
@@ -8,7 +10,7 @@ function crunchNums1(nums) {
   }
 }
 
-function crunchNums2(num) {
+function crunchNums2(nums) {
   for (num1 of nums) {
     for (num2 of nums) {
       for (num3 of nums) {
@@ -20,7 +22,7 @@ function crunchNums2(num) {
   }
 }
 
-const contents = require('fs').readFileSync('day-01-input.txt', { encoding: 'utf8' });
+const contents = fs.readFileSync('day-01-input.txt', { encoding: 'utf8' });
 const nums = contents.split('\n').map(x => parseInt(x));
 
 const answer1 = crunchNums1(nums);
